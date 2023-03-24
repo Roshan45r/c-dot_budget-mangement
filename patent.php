@@ -68,11 +68,11 @@ $res = mysqli_query($con, $q);
                         <td><?=$row['balance_amount'];?></td>
                         <td><?=$row['country'];?></td>
                         <script>
-                        var page_<?php echo $row['data_id'] ?> = <?php echo json_encode($users);?>
+                        var page_<?php echo $row['data_id'] ?> = <?php echo json_encode($row);?>
                         </script>
                         <td><a data="<?php echo 'page_'.$row['data_id'] ?>" class="model_form btn btn-info btn-sm" href="#">
                                 <span class="glyphicon glyphicon-pencil"></span></a>
-                            <a data="<?php echo  $row['data_id'] ?>" title="Delete <?php echo $row['bps_date'];?>"
+                            <a data="<?php echo  $row['data_id'] ?>" title="Delete <?php echo $row['data_id'];?>"
                                 class="tip delete_check btn btn-info btn-sm "><span
                                     class="glyphicon glyphicon-remove"></span> </a>
                         </td>
@@ -131,6 +131,7 @@ $(document).ready(function() {
         $('#invoice_date').val(data.invoice_date);
         $('#invoice_amount').val(data.invoice_amount);
         $('#approval_amount').val(data.approval_amount);
+        $('#balance_amount').val(data.balance_amount);
         $('#country').val(data.country);
         if (data.id != "")
             $('#pop_title').html('Edit');
@@ -147,7 +148,7 @@ $(document).ready(function() {
                 type: "POST",
                 url: url,
                 data: {
-                    ct_id: $(current_element).attr('data')
+                    ct_data_id: $(current_element).attr('data')
                 },
                 success: function(data) {
                     location.reload();
@@ -175,6 +176,7 @@ $(document).ready(function() {
             </div>
             <!-- Form inside modal -->
             <form method="post" action="add_patent.php" id="cat_form">
+                <input type="hidden" name="data_id" id="data_id">
                 <div class="modal-body with-padding">
                     <div class="form-group">
                         <div class="row">
@@ -221,7 +223,7 @@ $(document).ready(function() {
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>balance_amount :</label>
-                                <input type="text" name="balance_aount" id="balance_amount" class="form-control required">
+                                <input type="text" name="balance_amount" id="balance_amount" class="form-control required">
                             </div>
                         </div>
                     </div>
