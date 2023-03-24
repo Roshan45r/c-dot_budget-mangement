@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2023 at 10:01 PM
+-- Generation Time: Mar 24, 2023 at 07:03 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 7.4.29
 
@@ -44,7 +44,13 @@ CREATE TABLE `all_data` (
 --
 
 INSERT INTO `all_data` (`category_id`, `data_id`, `country`, `bps_date`, `invoice_date`, `invoice_amount`, `approval_amount`, `balance_amount`, `title`) VALUES
-(1, 1, 'India', '2023-03-01', '2023-03-01', 5635, 8563, 8956, 'Hello');
+(1, 71, 'malesia', '2023-03-01', '2023-03-01', 889, 56, 8956, 'jhkbjo'),
+(1, 72, 'malesia', '2023-03-01', '2023-03-01', 889, 56, 8956, 'jhkbjo'),
+(1, 73, 'malesia', '2023-03-01', '2023-03-01', 889, 56, 8956, 'jhkbjo'),
+(1, 74, 'malesia', '2023-03-01', '2023-03-01', 889, 56, 8956, 'jhkbjo'),
+(1, 75, 'malesia', '2023-03-01', '2023-03-01', 889, 8563, 8956, 'helmets'),
+(1, 76, 'malesia', '2023-03-01', '2023-03-01', 889, 8563, 8956, 'helmet'),
+(1, 77, 'malesia', '2023-03-01', '2023-03-01', 889, 8563, 8956, 'ros');
 
 -- --------------------------------------------------------
 
@@ -93,7 +99,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `all_data`
 --
 ALTER TABLE `all_data`
-  MODIFY `data_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `data_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- Constraints for dumped tables
