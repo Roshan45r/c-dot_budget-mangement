@@ -1,8 +1,8 @@
 <?php
 session_start();
 $con = mysqli_connect('localhost', 'root', '');
-mysqli_select_db($con, 'budget_management');
-$q = "select * from all_data where category_id=1";
+mysqli_select_db($con, 'c-dot');
+$q = "select * from datas where category_id=1";
 $res = mysqli_query($con, $q);
 //$row = mysqli_fetch_array($res);
 //echo $row['title'];
@@ -46,10 +46,9 @@ $res = mysqli_query($con, $q);
             <table class="table table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>BPS DATE</th>
-                        <th>INVOICE DATE</th>
+                        <th>PATENT ID</th>
                         <th>PATENT TITLE</th>
-                        <th>INVOICE AMOUNT</th>
+                        <th>BPS DATE</th>
                         <th>APPROVAL AMOUNT</th>
                         <th>BALANCE AMOUNT</th>
                         <th>COUNTRY</th>
@@ -59,22 +58,32 @@ $res = mysqli_query($con, $q);
                     <?php if(isset($res))  : $i=1; ?>
                     <?php  while ($row = mysqli_fetch_array($res)) { ?>
 
-                    <tr class="<?=$row['data_id']?>_del">
-                        <td><?=$row['bps_date'];?></td>
-                        <td><?=$row['invoice_date'];?></td>
+                    <tr class="<?=$row['number']?>_del">
+                        <td><?=$row['number'];?></td>
+                        <!-- <td><?=$row['number'];?></td>         -->
                         <td><?=$row['title'];?></td>
-                        <td><?=$row['invoice_amount'];?></td>
+                        <td><?=$row['bps_date'];?></td>
+                        <!-- <td><?=$row['invoice_amount'];?></td> -->
                         <td><?=$row['approval_amount'];?></td>
                         <td><?=$row['balance_amount'];?></td>
                         <td><?=$row['country'];?></td>
                         <script>
-                        var page_<?php echo $row['data_id'] ?> = <?php echo json_encode($row);?>
+                        var page_<?php echo $row['number'] ?> = <?php echo json_encode($row);?>
                         </script>
-                        <td><a data="<?php echo 'page_'.$row['data_id'] ?>" class="model_form btn btn-info btn-sm" href="#">
+                        <td><form method="POST" action="invoice_patent.php">
+                        <input type="hidden" name="number_p" id="number_p" value="<?php echo $row['number'];?>">
+                        <button type = "submit"  title="View Invoices for <?php echo $row['number'];?>"
+                                class="tip view_inv btn btn-info btn-sm "><span
+                                    class="glyphicon glyphicon-list-alt "></span></button>
+                            
+                            <a data="<?php echo 'page_'.$row['number'] ?>" class="model_form btn btn-info btn-sm" href="#">
                                 <span class="glyphicon glyphicon-pencil"></span></a>
-                            <a data="<?php echo  $row['data_id'] ?>" title="Delete <?php echo $row['data_id'];?>"
+                            <a data="<?php echo  $row['number'] ?>" title="Delete <?php echo $row['number'];?>"
                                 class="tip delete_check btn btn-info btn-sm "><span
                                     class="glyphicon glyphicon-remove"></span> </a>
+                            
+                            
+                            </form>
                         </td>
                     </tr>
                     <?php $i++; } ?>
@@ -125,13 +134,12 @@ $(document).ready(function() {
         });
         var data = eval($(this).attr('data'));
         console.log(data);
-        $('#data_id').val(data.data_id);
+        $('#number').val(data.number);
         $('#title').val(data.title);
         $('#bps_date').val(data.bps_date);
-        $('#invoice_date').val(data.invoice_date);
-        $('#invoice_amount').val(data.invoice_amount);
+        $('#number').val(data.number);
+        $('#category_id').val(data.category_id);
         $('#approval_amount').val(data.approval_amount);
-        $('#balance_amount').val(data.balance_amount);
         $('#country').val(data.country);
         if (data.id != "")
             $('#pop_title').html('Edit');
@@ -148,20 +156,21 @@ $(document).ready(function() {
                 type: "POST",
                 url: url,
                 data: {
-                    ct_data_id: $(current_element).attr('data')
+                    ct_number: $(current_element).attr('data')
                 },
                 success: function(data) {
-                    location.reload();
+                    //location.reload();
                     $('.' + $(current_element).attr('data') + '_del').animate({
                         backgroundColor: "#003"
                     }, "slow").animate({
-                        opacity: "bps_datee"
+                        opacity: "hide"
                     }, "slow");
                 }
             });
         }
     });
 });
+
 </script>
 
 
@@ -176,7 +185,7 @@ $(document).ready(function() {
             </div>
             <!-- Form inside modal -->
             <form method="post" action="add_patent.php" id="cat_form">
-                <input type="hidden" name="data_id" id="data_id">
+                <input type="hidden" name="category_id" id="category_id">
                 <div class="modal-body with-padding">
                     <div class="form-group">
                         <div class="row">
@@ -197,12 +206,12 @@ $(document).ready(function() {
                     <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
-                                <label>invoice_date :</label>
-                                <input type="text" name="invoice_date" id="invoice_date" class="form-control required">
+                                <label>number :</label>
+                                <input type="text" name="number" id="number" class="form-control required">
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>invoice_amount :</label>
@@ -210,7 +219,7 @@ $(document).ready(function() {
                                     class="form-control required">
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
@@ -219,14 +228,14 @@ $(document).ready(function() {
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>balance_amount :</label>
                                 <input type="text" name="balance_amount" id="balance_amount" class="form-control required">
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
