@@ -70,11 +70,15 @@ $res = mysqli_query($con, $q);
                         <script>
                         var page_<?php echo $row['number'] ?> = <?php echo json_encode($row);?>
                         </script>
-                        <td><form method="POST" action="invoice_patent.php">
+                        <td><form method="GET" action="invoice_patent.php">
                         <input type="hidden" name="number_p" id="number_p" value="<?php echo $row['number'];?>">
-                        <button type = "submit"  title="View Invoices for <?php echo $row['number'];?>"
+                        
+                                    
+                            <a href="invoice_patent.php?no=<?php echo $row['number'];?>"  title="View Invoices for <?php echo $row['number'];?>"
                                 class="tip view_inv btn btn-info btn-sm "><span
-                                    class="glyphicon glyphicon-list-alt "></span></button>
+                                    class="glyphicon glyphicon-list-alt "></span></a>
+
+                            
                             
                             <a data="<?php echo 'page_'.$row['number'] ?>" class="model_form btn btn-info btn-sm" href="#">
                                 <span class="glyphicon glyphicon-pencil"></span></a>

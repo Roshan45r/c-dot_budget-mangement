@@ -2,7 +2,7 @@
 session_start();
 $con = mysqli_connect('localhost', 'root', '');
 mysqli_select_db($con, 'c-dot');
-$inv = $_POST['number_p'];
+$inv = $_GET['no'];
 //echo $inv;
 $q = "select * from invoice where category_id=1 and number=$inv";
 $res = mysqli_query($con, $q);
@@ -29,7 +29,8 @@ $res = mysqli_query($con, $q);
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;">
-            <h2>INVOICES</h2>
+
+            <h2><a href="patent.php"><span class="glyphicon glyphicon-chevron-left"></span></a>INVOICES</h2>
         </div>
     </div>
     <div class="row">
@@ -138,7 +139,7 @@ $(document).ready(function() {
                 type: "POST",
                 url: url,
                 data: {
-                    ct_invoice_id: $(current_element).attr('data')
+                    ct_data_id: $(current_element).attr('data')
                 },
                 success: function(data) {
                     location.reload();
@@ -166,7 +167,7 @@ $(document).ready(function() {
             </div>
             <!-- Form inside modal -->
             <form method="post" action="add_nv.php" id="cat_form">
-                <input type="hidden" name="number" id="number" value="<?php echo $row['number']?>">
+                <input type="hidden" name="number" id="number" value="<?php echo $inv?>">
                 <input type="hidden" name="category_id" id="category_id" value="<?php echo $row['category_id']?>">
                 <div class="modal-body with-padding">
                     <div class="form-group">
