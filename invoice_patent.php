@@ -1,12 +1,29 @@
 <?php
 session_start();
+
+include("export_data.php");
 $con = mysqli_connect('localhost', 'root', '');
 mysqli_select_db($con, 'c-dot');
 $inv = $_GET['no'];
-//echo $inv;
-$q = "select * from invoice where category_id=1 and number=$inv";
-$res = mysqli_query($con, $q);
+$sort = 0;
+$ord = "invoice_id";
+if (!empty($_GET['sort'])) {
+    // Do something.
 
+    $sort = $_GET['sort'];
+}
+if ($sort == 2) {
+    $ord = "invoice_date desc";
+}
+//echo $inv;
+$q = "select invoice_id,invoice_date,invoice_amount from invoice where category_id=1 and number=$inv order by $ord";
+$quer = $q;
+$res = mysqli_query($con, $q);
+$exp = mysqli_query($con, $q);
+$developer_records = array();
+while ($rows = mysqli_fetch_assoc($exp)) {
+    $developer_records[] = $rows;
+}
 //$row = mysqli_fetch_array($res);
 //echo $row['title'];
 ?>
@@ -17,7 +34,7 @@ $res = mysqli_query($con, $q);
 <head>
     <title>Invoices</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <!-- jQuery library -->
     <!-- Latest compiled JavaScript -->
@@ -25,7 +42,7 @@ $res = mysqli_query($con, $q);
 </head>
 
 <body>
-    <?php include('navbar.php');?>
+    <?php include('navbar.php'); ?>
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;">
@@ -36,17 +53,88 @@ $res = mysqli_query($con, $q);
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;MARGIN-BOTTOM:5PX;">
-            <?php $apage = array('id'=>'','title'=>'');?>
+            <?php $apage = array('id' => '', 'title' => ''); ?>
             <script>
-            var page_0 = <?php echo json_encode($apage)?>
+                var page_0 = <?php echo json_encode($apage) ?>
             </script>
-            <h3><a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span
-                        class="glyphicon glyphicon-plus"></span> Add new Invoices</a></h3>
+            <div class="row" style="display: flex;align-items: center;margin-left:10px;">
+                <a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span class="glyphicon glyphicon-plus"></span> Add new Invoice</a>
+                <style>
+                    /* Style The Dropdown Button */
+                    .dropbtn {
+                        background-color: #5BC0DE;
+                        color: white;
+                        margin: 10px;
+                        padding: 6px 8px;
+                        font-size: 12px;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 3px;
+                    }
+
+                    /* The container <div> - needed to position the dropdown content */
+                    .dropdown {
+                        position: relative;
+                        display: inline-block;
+                    }
+
+                    /* Dropdown Content (Hidden by Default) */
+                    .dropdown-content {
+                        display: none;
+                        position: absolute;
+                        background-color: #f9f9f9;
+                        min-width: 160px;
+                        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                        z-index: 1;
+                    }
+
+                    /* Links inside the dropdown */
+                    .dropdown-content a {
+                        color: black;
+                        padding: 12px 16px;
+                        text-decoration: none;
+                        display: block;
+                    }
+
+                    /* Change color of dropdown links on hover */
+                    .dropdown-content a:hover {
+                        background-color: #f1f1f1
+                    }
+
+                    /* Show the dropdown menu on hover */
+                    .dropdown:hover .dropdown-content {
+                        display: block;
+                    }
+
+                    /* Change the background color of the dropdown button when the dropdown content is shown */
+                    .dropdown:hover .dropbtn {
+                        background-color: #337AB7;
+                    }
+                </style>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Sort By<span class="caret"></span></button>
+                    <div class="dropdown-content">
+                        <a href="?no=<?php echo $inv ?>&sort=1">INVOICE ID</a>
+                        <a href="?no=<?php echo $inv ?>&sort=2">INVOICE DATE</a>
+                    </div>
+                </div>
+                <div class="col">
+                    <div>
+                        <form action="<?php echo $_SERVER["PHP_SELF"]; ?>?no=<?php echo $inv ?>" method="post">
+                            <input type="hidden" value="<?php echo $inv ?>" name="number" id="number">
+                            <input type="hidden" value="<?php echo $quer ?>" name="query" id="query">
+
+                            <button type="submit" id="export_data" name='export_data' value="Export to excel" class="btn btn-success" style="font-size:12px;">Export<i class="fa fa-download" style="margin-left:5px;"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-2"></div>
-        <div class="col-md-8">
+        <div class="col-md-8" id="inv-table">
             <table class="table table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
@@ -56,104 +144,104 @@ $res = mysqli_query($con, $q);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if(isset($res))  : $i=1; ?>
-                    <?php  while ($row = mysqli_fetch_array($res)) { ?>
+                    <?php if (isset($res)) : $i = 1; ?>
+                        <?php while ($row = mysqli_fetch_array($res)) { ?>
 
-                    <tr class="<?=$row['invoice_id']?>_del">
-                        <td><?=$row['invoice_id'];?></td>
-                        <td><?=$row['invoice_date'];?></td>
-                        <td><?=$row['invoice_amount'];?></td>
-                        <script>
-                        var page_<?php echo $row['invoice_id'] ?> = <?php echo json_encode($row);?>
-                        </script>
-                        <td><a data="<?php echo 'page_'.$row['invoice_id'] ?>" class="model_form btn btn-info btn-sm" href="#">
-                                <span class="glyphicon glyphicon-pencil"></span></a>
-                            <a data="<?php echo  $row['invoice_id'] ?>" title="Delete <?php echo $row['invoice_id'];?>"
-                                class="tip delete_check btn btn-info btn-sm "><span
-                                    class="glyphicon glyphicon-remove"></span> </a>
-                        </td>
-                    </tr>
-                    <?php $i++; } ?>
+                            <tr class="<?= $row['invoice_id'] ?>_del">
+                                <td><?= $row['invoice_id']; ?></td>
+                                <td><?= $row['invoice_date']; ?></td>
+                                <td><?= $row['invoice_amount']; ?></td>
+                                <script>
+                                    var page_<?php echo $row['invoice_id'] ?> = <?php echo json_encode($row); ?>
+                                </script>
+                                <td><a data="<?php echo 'page_' . $row['invoice_id'] ?>" class="model_form btn btn-info btn-sm" href="#">
+                                        <span class="glyphicon glyphicon-pencil"></span></a>
+                                    <a data="<?php echo  $row['invoice_id'] ?>" title="Delete <?php echo $row['invoice_id']; ?>" class="tip delete_check btn btn-info btn-sm "><span class="glyphicon glyphicon-remove"></span> </a>
+                                </td>
+                            </tr>
+                        <?php $i++;
+                        } ?>
                     <?php else : echo '<tr><td colspan="8"><div align="center">-------No record found -----</div></td></tr>'; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
             <?php
-              if(isset($_SESSION['flash_msg'])) :  
-               $message = $_SESSION['flash_msg'];
-               echo $error= '<div class="alert alert-success" role="alert">
-               <span class="glyphicon glyphicon-envelope"></span> <strong>'.$message.'</strong> </div>';
-               unset($_SESSION['flash_msg']);
-              endif;
-          ?>
+            if (isset($_SESSION['flash_msg'])) :
+                $message = $_SESSION['flash_msg'];
+                echo $error = '<div class="alert alert-success" role="alert">
+               <span class="glyphicon glyphicon-envelope"></span> <strong>' . $message . '</strong> </div>';
+                unset($_SESSION['flash_msg']);
+            endif;
+            ?>
 
 
-            <!-- Ads and more  -->
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- header_responsive_ads -->
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9665679251236729"
-                data-ad-slot="9239985429" data-ad-format="auto"></ins>
-            <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+
 
 
         </div>
         <div class="col-md-2">
 
         </div>
-    </div>
 
 
 
-    <!-- End -->
+
+        <!-- End -->
 </body>
 
 </html>
 <script src="js/script.js"></script>
 <script type="text/javascript">
-$(document).ready(function() {
-    $(document).on('click', '.model_form', function() {
-        $('#form_modal').modal({
-            keyboard: false,
-            show: true,
-            backdrop: 'static'
-        });
-        var data = eval($(this).attr('data'));
-        console.log(data);
-        $('#invoice_id').val(data.invoice_id);
-        $('#invoice_date').val(data.invoice_date);
-        $('#invoice_amount').val(data.invoice_amount);
-        if (data.id != "")
-            $('#pop_title').html('Edit');
-        else
-            $('#pop_title').html('Add');
-
-    });
-    $(document).on('click', '.delete_check', function() {
-        if (confirm("Are you sure to delete data")) {
-            var current_element = $(this);
-            console.log($(current_element).attr('data'));
-            url = "add_nv.php";
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: {
-                    ct_data_id: $(current_element).attr('data')
-                },
-                success: function(data) {
-                    location.reload();
-                    $('.' + $(current_element).attr('data') + '_del').animate({
-                        backgroundColor: "#003"
-                    }, "slow").animate({
-                        opacity: "bps_datee"
-                    }, "slow");
-                }
+    $(document).ready(function() {
+        $(document).on('click', '.model_form', function() {
+            $('#form_modal').modal({
+                keyboard: false,
+                show: true,
+                backdrop: 'static'
             });
-        }
+            var data = eval($(this).attr('data'));
+            console.log(data);
+            $('#invoice_id').val(data.invoice_id);
+            $('#invoice_date').val(data.invoice_date);
+            $('#invoice_amount').val(data.invoice_amount);
+            if (data.id != "")
+                $('#pop_title').html('Edit');
+            else
+                $('#pop_title').html('Add');
+
+        });
+        $('#create_excel').click(function() {
+            var excel_data = $('#inv-table').html();
+            var page = "excel.php?data=" + excel_data;
+            window.location = page;
+        });
+
+        $(document).on('click', '.delete_check', function() {
+            if (confirm("Are you sure to delete data")) {
+                var current_element = $(this);
+                console.log($(current_element).attr('data'));
+                url = "add_nv.php";
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: {
+                        ct_data_id: $(current_element).attr('data')
+                    },
+                    success: function(data) {
+                        location.reload();
+                        $('.' + $(current_element).attr('data') + '_del').animate({
+                            backgroundColor: "#003"
+                        }, "slow").animate({
+                            opacity: "bps_datee"
+                        }, "slow");
+                    }
+                });
+            }
+        });
     });
-});
 </script>
+
+
 
 
 <!-- Form modal -->
@@ -167,8 +255,8 @@ $(document).ready(function() {
             </div>
             <!-- Form inside modal -->
             <form method="post" action="add_nv.php" id="cat_form">
-                <input type="hidden" name="number" id="number" value="<?php echo $inv?>">
-                <input type="hidden" name="category_id" id="category_id" value="<?php echo $row['category_id']?>">
+                <input type="hidden" name="number" id="number" value="<?php echo $inv ?>">
+                <input type="hidden" name="category_id" id="category_id" value="<?php echo $row['category_id'] ?>">
                 <div class="modal-body with-padding">
                     <div class="form-group">
                         <div class="row">
@@ -190,8 +278,7 @@ $(document).ready(function() {
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>invoice_amount :</label>
-                                <input type="text" name="invoice_amount" id="invoice_amount"
-                                    class="form-control required">
+                                <input type="text" name="invoice_amount" id="invoice_amount" class="form-control required">
                             </div>
                         </div>
                     </div>

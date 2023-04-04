@@ -23,7 +23,7 @@
         	$con = mysqli_connect('localhost', 'root', '');
             mysqli_select_db($con, 'c-dot');
             $res = mysqli_query($con, $sql);
-            if ($con->query($sql) == TRUE)
+            if (mysqli_num_rows($res)>0)
             {
                 $row =  mysqli_fetch_array($res);
                 $app = $row['approval_amount'];
@@ -53,7 +53,7 @@
         }
         $_SESSION['flash_msg'] = $msg;
         //echo "<script>alert('Product is already added in the cart..!')</script>";
-        echo "<script>window.location = 'patent.php'</script>";
+    echo "<script>window.location = 'patent.php'</script>";
         //header("Location:datas.php");
         }
         else{    echo "hello";

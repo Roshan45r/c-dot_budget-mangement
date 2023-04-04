@@ -2,10 +2,25 @@
 session_start();
 $con = mysqli_connect('localhost', 'root', '');
 mysqli_select_db($con, 'c-dot');
-$q = "select * from datas where category_id=1";
+$sort = 0;
+$ord = "title";
+if (!empty($_GET['sort'])) {
+    // Do something.
+    
+    $sort = $_GET['sort'];
+}
+if ($sort == 2) {
+    $ord = "bps_date desc";
+}
+if ($sort == 3) {
+    $ord = "number desc";
+}
+$q = "select * from datas where category_id=1 order by $ord";
 $res = mysqli_query($con, $q);
 //$row = mysqli_fetch_array($res);
 //echo $row['title'];
+
+
 ?>
 
 <!DOCTYPE html>
@@ -22,7 +37,7 @@ $res = mysqli_query($con, $q);
 </head>
 
 <body>
-    <?php include('navbar.php');?>
+    <?php include('navbar.php'); ?>
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;">
@@ -32,12 +47,74 @@ $res = mysqli_query($con, $q);
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;MARGIN-BOTTOM:5PX;">
-            <?php $apage = array('id'=>'','title'=>'');?>
+            <?php $apage = array('id' => '', 'title' => ''); ?>
             <script>
-            var page_0 = <?php echo json_encode($apage)?>
+                var page_0 = <?php echo json_encode($apage) ?>
             </script>
-            <h3><a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span
-                        class="glyphicon glyphicon-plus"></span> Add new patent</a></h3>
+            <div class="row" style="display: flex;align-items: center;margin-left:10px;">
+                <a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span class="glyphicon glyphicon-plus"></span> Add new patent</a>
+                <style>
+                    /* Style The Dropdown Button */
+                    .dropbtn {
+                        background-color: #5BC0DE;
+                        color: white;
+                        margin: 10px;
+                        padding: 6px 8px;
+                        font-size: 12px;
+                        border: none;
+                        cursor: pointer;
+                        border-radius: 3px;
+                    }
+
+                    /* The container <div> - needed to position the dropdown content */
+                    .dropdown {
+                        position: relative;
+                        display: inline-block;
+                    }
+
+                    /* Dropdown Content (Hidden by Default) */
+                    .dropdown-content {
+                        display: none;
+                        position: absolute;
+                        background-color: #f9f9f9;
+                        min-width: 160px;
+                        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                        z-index: 1;
+                    }
+
+                    /* Links inside the dropdown */
+                    .dropdown-content a {
+                        color: black;
+                        padding: 12px 16px;
+                        text-decoration: none;
+                        display: block;
+                    }
+
+                    /* Change color of dropdown links on hover */
+                    .dropdown-content a:hover {
+                        background-color: #f1f1f1
+                    }
+
+                    /* Show the dropdown menu on hover */
+                    .dropdown:hover .dropdown-content {
+                        display: block;
+                    }
+
+                    /* Change the background color of the dropdown button when the dropdown content is shown */
+                    .dropdown:hover .dropbtn {
+                        background-color: #337AB7;
+                    }
+                </style>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Sort By<span class="caret"></span></button>
+                    <div class="dropdown-content">
+                        <a href="?sort=1">TITLE</a>
+                        <a href="?sort=2">BPS-DATE</a>
+                        <a href="?sort=3">PATENT-ID</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -55,65 +132,52 @@ $res = mysqli_query($con, $q);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if(isset($res))  : $i=1; ?>
-                    <?php  while ($row = mysqli_fetch_array($res)) { ?>
+                    <?php if (isset($res)) : $i = 1; ?>
+                        <?php while ($row = mysqli_fetch_array($res)) { ?>
 
-                    <tr class="<?=$row['number']?>_del">
-                        <td><?=$row['number'];?></td>
-                        <!-- <td><?=$row['number'];?></td>         -->
-                        <td><?=$row['title'];?></td>
-                        <td><?=$row['bps_date'];?></td>
-                        <!-- <td><?=$row['invoice_amount'];?></td> -->
-                        <td><?=$row['approval_amount'];?></td>
-                        <td><?=$row['balance_amount'];?></td>
-                        <td><?=$row['country'];?></td>
-                        <script>
-                        var page_<?php echo $row['number'] ?> = <?php echo json_encode($row);?>
-                        </script>
-                        <td><form method="GET" action="invoice_patent.php">
-                        <input type="hidden" name="number_p" id="number_p" value="<?php echo $row['number'];?>">
-                        
-                                    
-                            <a href="invoice_patent.php?no=<?php echo $row['number'];?>"  title="View Invoices for <?php echo $row['number'];?>"
-                                class="tip view_inv btn btn-info btn-sm "><span
-                                    class="glyphicon glyphicon-list-alt "></span></a>
+                            <tr class="<?= $row['number'] ?>_del">
+                                <td><?= $row['number']; ?></td>
+                                <!-- <td><?= $row['number']; ?></td>         -->
+                                <td><?= $row['title']; ?></td>
+                                <td><?= $row['bps_date']; ?></td>
+                                <!-- <td><?= $row['invoice_amount']; ?></td> -->
+                                <td><?= $row['approval_amount']; ?></td>
+                                <td><?= $row['balance_amount']; ?></td>
+                                <td><?= $row['country']; ?></td>
+                                <script>
+                                    var page_<?php echo $row['number'] ?> = <?php echo json_encode($row); ?>
+                                </script>
+                                <td>
+                                    <form method="GET" action="invoice_patent.php">
+                                        <input type="hidden" name="number_p" id="number_p" value="<?php echo $row['number']; ?>">
 
-                            
-                            
-                            <a data="<?php echo 'page_'.$row['number'] ?>" class="model_form btn btn-info btn-sm" href="#">
-                                <span class="glyphicon glyphicon-pencil"></span></a>
-                            <a data="<?php echo  $row['number'] ?>" title="Delete <?php echo $row['number'];?>"
-                                class="tip delete_check btn btn-info btn-sm "><span
-                                    class="glyphicon glyphicon-remove"></span> </a>
-                            
-                            
-                            </form>
-                        </td>
-                    </tr>
-                    <?php $i++; } ?>
+
+                                        <a href="invoice_patent.php?no=<?php echo $row['number']; ?>" title="View Invoices for <?php echo $row['number']; ?>" class="tip view_inv btn btn-info btn-sm "><span class="glyphicon glyphicon-list-alt "></span></a>
+
+
+
+                                        <a data="<?php echo 'page_' . $row['number'] ?>" class="model_form btn btn-info btn-sm" href="#">
+                                            <span class="glyphicon glyphicon-pencil"></span></a>
+                                        <a data="<?php echo  $row['number'] ?>" title="Delete <?php echo $row['number']; ?>" class="tip delete_check btn btn-info btn-sm "><span class="glyphicon glyphicon-remove"></span> </a>
+
+
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php $i++;
+                        } ?>
                     <?php else : echo '<tr><td colspan="8"><div align="center">-------No record found -----</div></td></tr>'; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
             <?php
-              if(isset($_SESSION['flash_msg'])) :  
-               $message = $_SESSION['flash_msg'];
-               echo $error= '<div class="alert alert-success" role="alert">
-               <span class="glyphicon glyphicon-envelope"></span> <strong>'.$message.'</strong> </div>';
-               unset($_SESSION['flash_msg']);
-              endif;
-          ?>
-
-
-            <!-- Ads and more  -->
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- header_responsive_ads -->
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9665679251236729"
-                data-ad-slot="9239985429" data-ad-format="auto"></ins>
-            <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-
+            if (isset($_SESSION['flash_msg'])) :
+                $message = $_SESSION['flash_msg'];
+                echo $error = '<div class="alert alert-success" role="alert">
+               <span class="glyphicon glyphicon-envelope"></span> <strong>' . $message . '</strong> </div>';
+                unset($_SESSION['flash_msg']);
+            endif;
+            ?>
 
         </div>
         <div class="col-md-2">
@@ -129,52 +193,51 @@ $res = mysqli_query($con, $q);
 </html>
 <script src="js/script.js"></script>
 <script type="text/javascript">
-$(document).ready(function() {
-    $(document).on('click', '.model_form', function() {
-        $('#form_modal').modal({
-            keyboard: false,
-            show: true,
-            backdrop: 'static'
-        });
-        var data = eval($(this).attr('data'));
-        console.log(data);
-        $('#number').val(data.number);
-        $('#title').val(data.title);
-        $('#bps_date').val(data.bps_date);
-        $('#number').val(data.number);
-        $('#category_id').val(data.category_id);
-        $('#approval_amount').val(data.approval_amount);
-        $('#country').val(data.country);
-        if (data.id != "")
-            $('#pop_title').html('Edit');
-        else
-            $('#pop_title').html('Add');
-
-    });
-    $(document).on('click', '.delete_check', function() {
-        if (confirm("Are you sure to delete data")) {
-            var current_element = $(this);
-            console.log($(current_element).attr('data'));
-            url = "add_patent.php";
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: {
-                    ct_number: $(current_element).attr('data')
-                },
-                success: function(data) {
-                    //location.reload();
-                    $('.' + $(current_element).attr('data') + '_del').animate({
-                        backgroundColor: "#003"
-                    }, "slow").animate({
-                        opacity: "hide"
-                    }, "slow");
-                }
+    $(document).ready(function() {
+        $(document).on('click', '.model_form', function() {
+            $('#form_modal').modal({
+                keyboard: false,
+                show: true,
+                backdrop: 'static'
             });
-        }
-    });
-});
+            var data = eval($(this).attr('data'));
+            console.log(data);
+            $('#number').val(data.number);
+            $('#title').val(data.title);
+            $('#bps_date').val(data.bps_date);
+            $('#number').val(data.number);
+            $('#category_id').val(data.category_id);
+            $('#approval_amount').val(data.approval_amount);
+            $('#country').val(data.country);
+            if (data.id != "")
+                $('#pop_title').html('Edit');
+            else
+                $('#pop_title').html('Add');
 
+        });
+        $(document).on('click', '.delete_check', function() {
+            if (confirm("Are you sure to delete data")) {
+                var current_element = $(this);
+                console.log($(current_element).attr('data'));
+                url = "add_patent.php";
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: {
+                        ct_number: $(current_element).attr('data')
+                    },
+                    success: function(data) {
+                        //location.reload();
+                        $('.' + $(current_element).attr('data') + '_del').animate({
+                            backgroundColor: "#003"
+                        }, "slow").animate({
+                            opacity: "hide"
+                        }, "slow");
+                    }
+                });
+            }
+        });
+    });
 </script>
 
 
