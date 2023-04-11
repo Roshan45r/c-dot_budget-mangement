@@ -16,7 +16,7 @@ if ($sort == 2) {
     $ord = "invoice_date desc";
 }
 //echo $inv;
-$q = "select invoice_id,invoice_date,invoice_amount from invoice where category_id=1 and number=$inv order by $ord";
+$q = "select invoice_id,invoice_date,bps_date,invoice_amount from invoice where category_id=1 and number=$inv order by $ord";
 $quer = $q;
 $res = mysqli_query($con, $q);
 $exp = mysqli_query($con, $q);
@@ -47,7 +47,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
 
         <div class="col-md-4" style="margin-left:250px;">
 
-            <h2><a href="patent.php"><span class="glyphicon glyphicon-chevron-left"></span></a>INVOICES</h2>
+            <h2><a href="patent.php"><span class="glyphicon glyphicon-chevron-left"></span></a>INVOICES - <?php echo $inv; ?></h2>
         </div>
     </div>
     <div class="row">
@@ -119,10 +119,11 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                         <a href="?no=<?php echo $inv ?>&sort=2">INVOICE DATE</a>
                     </div>
                 </div>
+                
                 <div class="col">
                     <div>
                         <form action="<?php echo $_SERVER["PHP_SELF"]; ?>?no=<?php echo $inv ?>" method="post">
-                            <input type="hidden" value="<?php echo $inv ?>" name="number" id="number">
+                            <input type="hidden" value="Patent ID = <?php echo $inv ?>" name="number" id="number">
                             <input type="hidden" value="<?php echo $quer ?>" name="query" id="query">
 
                             <button type="submit" id="export_data" name='export_data' value="Export to excel" class="btn btn-success" style="font-size:12px;">Export<i class="fa fa-download" style="margin-left:5px;"></i></button>
@@ -140,6 +141,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                     <tr>
                         <th>INVOICE ID</th>
                         <th>INVOICE DATE</th>
+                        <th>BPS DATE</th>
                         <th>INVOICE AMOUNT</th>
                     </tr>
                 </thead>
@@ -150,6 +152,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                             <tr class="<?= $row['invoice_id'] ?>_del">
                                 <td><?= $row['invoice_id']; ?></td>
                                 <td><?= $row['invoice_date']; ?></td>
+                                <td><?= $row['bps_date']; ?></td>
                                 <td><?= $row['invoice_amount']; ?></td>
                                 <script>
                                     var page_<?php echo $row['invoice_id'] ?> = <?php echo json_encode($row); ?>
@@ -203,6 +206,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
             console.log(data);
             $('#invoice_id').val(data.invoice_id);
             $('#invoice_date').val(data.invoice_date);
+            $('#bps_date').val(data.bps_date);
             $('#invoice_amount').val(data.invoice_amount);
             if (data.id != "")
                 $('#pop_title').html('Edit');
@@ -225,6 +229,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                     type: "POST",
                     url: url,
                     data: {
+                        number: '<?php echo $inv; ?>',
                         ct_data_id: $(current_element).attr('data')
                     },
                     success: function(data) {
@@ -270,7 +275,15 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>invoice_date :</label>
-                                <input type="text" name="invoice_date" id="invoice_date" class="form-control required">
+                                <input type="date" name="invoice_date" id="invoice_date" class="form-control required">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>bps_date :</label>
+                                <input type="date" name="bps_date" id="bps_date" class="form-control">
                             </div>
                         </div>
                     </div>

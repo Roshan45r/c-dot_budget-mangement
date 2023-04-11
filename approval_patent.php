@@ -1,44 +1,40 @@
 <?php
 session_start();
-include('export_data.php');
+
+include("export_data.php");
 $con = mysqli_connect('localhost', 'root', '');
 mysqli_select_db($con, 'c-dot');
+$pat = $_GET['no'];
 $sort = 0;
-$ord = "title";
-
+$ord = "approval_id";
 if (!empty($_GET['sort'])) {
     // Do something.
 
     $sort = $_GET['sort'];
 }
 if ($sort == 2) {
-    $ord = "bps_date desc";
+    $ord = "approval_date desc";
 }
-if ($sort == 3) {
-    $ord = "number desc";
-}
-$q = "select * from datas where category_id=1 order by $ord";
-if (!empty($_GET['search'])) {
-    // Do something.
-    $search = $_GET['search'];
-    //echo $search;
-    $q = "select * from datas where category_id=1 and (number like '$search%' or title like '$search%') order by $ord";
-}
+//echo $inv;
+$q = "select * from approval where category_id=1 and number=$pat order by $ord";
+$quer = $q;
 $res = mysqli_query($con, $q);
+$exp = mysqli_query($con, $q);
+$developer_records = array();
+while ($rows = mysqli_fetch_assoc($exp)) {
+    $developer_records[] = $rows;
+}
 //$row = mysqli_fetch_array($res);
 //echo $row['title'];
-
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>patent</title>
+    <title>Invoices</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <!-- jQuery library -->
     <!-- Latest compiled JavaScript -->
@@ -50,7 +46,8 @@ $res = mysqli_query($con, $q);
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;">
-            <h2>PATENTS</h2>
+
+            <h2><a href="patent.php"><span class="glyphicon glyphicon-chevron-left"></span></a>APPROVALS - <?php echo $pat;?></h2>
         </div>
     </div>
     <div class="row">
@@ -60,8 +57,8 @@ $res = mysqli_query($con, $q);
             <script>
                 var page_0 = <?php echo json_encode($apage) ?>
             </script>
-            <div style="display: flex;align-items: center;margin-left:10px;width:max-content;">
-                <a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span class="glyphicon glyphicon-plus"></span> Add new patent</a>
+            <div class="row" style="display: flex;align-items: center;margin-left:10px;">
+                <a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span class="glyphicon glyphicon-plus"></span> Add new Approval</a>
                 <style>
                     /* Style The Dropdown Button */
                     .dropbtn {
@@ -118,76 +115,47 @@ $res = mysqli_query($con, $q);
                 <div class="dropdown">
                     <button class="dropbtn">Sort By<span class="caret"></span></button>
                     <div class="dropdown-content">
-                        <a href="?sort=1">TITLE</a>
-                        <a href="?sort=3">PATENT-ID</a>
+                        <a href="?no=<?php echo $pat ?>&sort=1">APPROVAL ID</a>
+                        <a href="?no=<?php echo $pat ?>&sort=2">APPROVAL DATE</a>
                     </div>
                 </div>
-
-                <div style="margin-right: 10px;">
+                <div class="col">
                     <div>
-                        <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
-                            <input type="hidden" value="All Patents" name="number" id="number">
-                            <input type="hidden" value="<?php echo $q ?>" name="query" id="query">
+                        <form action="<?php echo $_SERVER["PHP_SELF"]; ?>?no=<?php echo $pat ?>" method="post">
+                            <input type="hidden" value="Patent ID = <?php echo $pat ?>" name="number" id="number">
+                            <input type="hidden" value="<?php echo $quer ?>" name="query" id="query">
 
                             <button type="submit" id="export_data" name='export_data' value="Export to excel" class="btn btn-success" style="font-size:12px;">Export<i class="fa fa-download" style="margin-left:5px;"></i></button>
                         </form>
                     </div>
                 </div>
-                <div class="search-container">
-                    <form action="patent.php" method="GET">
-                        <input type="text" placeholder="Search by ID,TITLE" name="search" id="search">
-                        <button type="submit"><span class="glyphicon glyphicon-search"></span></button>
-                    </form>
-                </div>
-
-
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-2"></div>
-        <div class="col-md-8">
+        <div class="col-md-8" id="inv-table">
             <table class="table table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>PATENT ID</th>
-                        <th>PATENT TITLE</th>
+                        <th>APPROVAL ID</th>
+                        <th>APPROVAL DATE</th>
                         <th>APPROVAL AMOUNT</th>
-                        <th>BALANCE AMOUNT</th>
-                        <th>COUNTRY</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (isset($res)) : $i = 1; ?>
                         <?php while ($row = mysqli_fetch_array($res)) { ?>
 
-                            <tr class="<?= $row['number'] ?>_del">
-                                <td><?= $row['number']; ?></td>
-                                <!-- <td><?= $row['number']; ?></td>         -->
-                                <td><?= $row['title']; ?></td>
-                                <!-- <td><?= $row['invoice_amount']; ?></td> -->
+                            <tr class="<?= $row['approval_id'] ?>_del">
+                                <td><?= $row['approval_id']; ?></td>
+                                <td><?= $row['approval_date']; ?></td>
                                 <td><?= $row['approval_amount']; ?></td>
-                                <td><?= $row['balance_amount']; ?></td>
-                                <td><?= $row['country']; ?></td>
                                 <script>
-                                    var page_<?php echo $row['number'] ?> = <?php echo json_encode($row); ?>
+                                    var page_<?php echo $row['approval_id'] ?> = <?php echo json_encode($row); ?>
                                 </script>
                                 <td>
-                                    <form method="GET" action="invoice_patent.php">
-                                        <input type="hidden" name="number_p" id="number_p" value="<?php echo $row['number']; ?>">
-
-
-                                        <a href="invoice_patent.php?no=<?php echo $row['number']; ?>" title="View Invoices for <?php echo $row['number']; ?>" class="tip view_inv btn btn-info btn-sm "><span class="glyphicon glyphicon-list-alt "></span></a>
-
-
-
-                                        <a data="<?php echo 'page_' . $row['number'] ?>" class="model_form btn btn-info btn-sm" href="#">
-                                            <span class="glyphicon glyphicon-pencil"></span></a>
-                                        <a data="<?php echo  $row['number'] ?>" title="Delete <?php echo $row['number']; ?>" class="tip delete_check btn btn-info btn-sm "><span class="glyphicon glyphicon-remove"></span> </a>
-
-                                        <a href="approval_patent.php?no=<?php echo $row['number']; ?>" data="<?php echo  $row['number'] ?>" title="View <?php echo $row['number']; ?>" class="tip view_pat btn btn-info btn-sm "><span class="glyphicon glyphicon-eye-open"></span> </a>
-
-                                    </form>
+                                    <a data="<?php echo  $row['approval_id'] ?>" title="Delete <?php echo $row['approval_id']; ?>" class="tip delete_check btn btn-info btn-sm "><span class="glyphicon glyphicon-remove"></span> </a>
                                 </td>
                             </tr>
                         <?php $i++;
@@ -205,15 +173,19 @@ $res = mysqli_query($con, $q);
             endif;
             ?>
 
+
+
+
+
         </div>
         <div class="col-md-2">
 
         </div>
-    </div>
 
 
 
-    <!-- End -->
+
+        <!-- End -->
 </body>
 
 </html>
@@ -228,35 +200,39 @@ $res = mysqli_query($con, $q);
             });
             var data = eval($(this).attr('data'));
             console.log(data);
-            $('#number').val(data.number);
-            $('#title').val(data.title);
-            $('#number').val(data.number);
-            $('#category_id').val(data.category_id);
+            $('#approval_id').val(data.approval_id);
+            $('#approval_date').val(data.approval_date);
             $('#approval_amount').val(data.approval_amount);
-            $('#country').val(data.country);
             if (data.id != "")
                 $('#pop_title').html('Edit');
             else
                 $('#pop_title').html('Add');
 
         });
+        $('#create_excel').click(function() {
+            var excel_data = $('#inv-table').html();
+            var page = "excel.php?data=" + excel_data;
+            window.location = page;
+        });
+
         $(document).on('click', '.delete_check', function() {
             if (confirm("Are you sure to delete data")) {
                 var current_element = $(this);
                 console.log($(current_element).attr('data'));
-                url = "add_patent.php";
+                url = "add_app.php";
                 $.ajax({
                     type: "POST",
                     url: url,
                     data: {
-                        ct_number: $(current_element).attr('data')
+                        number: '<?php echo $pat; ?>',
+                        ct_data_id: $(current_element).attr('data')
                     },
                     success: function(data) {
-                        //location.reload();
+                        location.reload();
                         $('.' + $(current_element).attr('data') + '_del').animate({
                             backgroundColor: "#003"
                         }, "slow").animate({
-                            opacity: "hide"
+                            opacity: "bps_datee"
                         }, "slow");
                     }
                 });
@@ -266,65 +242,51 @@ $res = mysqli_query($con, $q);
 </script>
 
 
+
+
 <!-- Form modal -->
 <div id="form_modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-bps_dateden="true">&times;</button>
-                <h4 class="modal-title"><i class="icon-paragraph-justify2"></i><span id="pop_title">Add</span> Patent
+                <h4 class="modal-title"><i class="icon-paragraph-justify2"></i><span id="pop_title">Add</span> Invoices
                     information</h4>
             </div>
             <!-- Form inside modal -->
-            <form method="post" action="add_patent.php" id="cat_form">
-                <input type="hidden" name="category_id" id="category_id">
+            <form method="post" action="add_app.php" id="cat_form">
+                <input type="hidden" name="number" id="number" value="<?php echo $pat ?>">
+                <input type="hidden" name="category_id" id="category_id" value="<?php echo $row['category_id'] ?>">
                 <div class="modal-body with-padding">
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <label>title :</label>
-                                <input type="text" name="title" id="title" class="form-control required">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <label>patent id :</label>
-                                <input type="text" name="number" id="number" class="form-control required">
-                            </div>
-                        </div>
-                    </div>
                     <!-- <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
-                                <label>invoice_amount :</label>
-                                <input type="text" name="invoice_amount" id="invoice_amount"
-                                    class="form-control required">
+                                <label>approval_id :</label>
+                                <input type="text" name="approval_id" id="approval_id" class="form-control required">
                             </div>
                         </div>
                     </div> -->
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>approval_date :</label>
+                                <input type="date" name="approval_date" id="approval_date" class="form-control required">
+                            </div>
+                        </div>
+                    </div>
                     <!-- <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>bps_date :</label>
+                                <input type="date" name="bps_date" id="bps_date" class="form-control">
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>approval_amount :</label>
                                 <input type="text" name="approval_amount" id="approval_amount" class="form-control required">
-                            </div>
-                        </div>
-                    </div> -->
-                    <!-- <div class="form-group">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <label>balance_amount :</label>
-                                <input type="text" name="balance_amount" id="balance_amount" class="form-control required">
-                            </div>
-                        </div>
-                    </div> -->
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <label>country :</label>
-                                <input type="text" name="country" id="country" class="form-control required">
                             </div>
                         </div>
                     </div>
@@ -339,4 +301,4 @@ $res = mysqli_query($con, $q);
         </div>
     </div>
 </div>
-<!-- /form modalssssss -->
+<!-- /form modal -->

@@ -19,9 +19,11 @@ while( $rows = mysqli_fetch_assoc($resultset) ) {
 	header("Content-Disposition: attachment; filename=\"$filename\"");	
 	$show_coloumn = false;
 	if(!empty($developer_records)) {
+		echo "$num \n";
 	  foreach($developer_records as $record) {
 		if(!$show_coloumn) {
 		  // display field/column names in first row
+		  
 		  echo implode("\t", array_keys($record)) . "\n";
 		  $show_coloumn = true;
 		}

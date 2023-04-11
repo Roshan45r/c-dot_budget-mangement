@@ -7,6 +7,7 @@
     if(isset($_POST['form_data'])) :
         $user_invoice_id = $db->real_escape_string($_POST['invoice_id']);
         $user_invoice_date = $db->real_escape_string($_POST['invoice_date']);
+        $user_bps_date = $db->real_escape_string($_POST['bps_date']);
         $user_invoice_amount = $db->real_escape_string($_POST['invoice_amount']);
         $user_category_id = $db->real_escape_string($_POST['category_id']);
         $user_number = $db->real_escape_string($_POST['number']);
@@ -43,7 +44,7 @@
             $sql1 = "update datas set balance_amount='$new_bal' where category_id=1 and number='$user_number'";
             $res1 = mysqli_query($con, $sql1);
             
-            $sql = "UPDATE invoice SET invoice_id='$user_invoice_id',invoice_date='$user_invoice_date',invoice_amount='$user_invoice_amount' WHERE invoice_id='$user_invoice_id'";
+            $sql = "UPDATE invoice SET invoice_id='$user_invoice_id',bps_date = '$user_bps_date',invoice_date='$user_invoice_date',invoice_amount='$user_invoice_amount' WHERE invoice_id='$user_invoice_id'";
         	$con = mysqli_connect('localhost', 'root', '');
             mysqli_select_db($con, 'c-dot');
             if ($con->query($sql) === TRUE)
@@ -58,7 +59,7 @@
             $sql1 = "update datas set balance_amount='$new_bal' where category_id=1 and number='$user_number'";
             $res1 = mysqli_query($con, $sql1);
 
-            $sql ="INSERT INTO `invoice` (`category_id`,`number`,`invoice_id`, `invoice_date`,`invoice_amount`) VALUES (1,'$user_number' , '$user_invoice_id', '$user_invoice_date', '$user_invoice_amount')";
+            $sql ="INSERT INTO `invoice` (`category_id`,`number`,`invoice_id`, `invoice_date`,`bps_date`,`invoice_amount`) VALUES (1,'$user_number' , '$user_invoice_id', '$user_invoice_date','$user_bps_date', '$user_invoice_amount')";
         	$con = mysqli_connect('localhost', 'root', '');
             mysqli_select_db($con, 'c-dot');
             if ($con->query($sql) === TRUE)
@@ -75,8 +76,26 @@
 
     if(isset($_POST['ct_data_id'])) :
         $data_id = ($_POST['ct_data_id']!="") ? $_POST['ct_data_id'] : '';
+        $number = $_POST['number'];
         if($data_id!="") :
+            $sql1 = "select * from datas where category_id=1 and number='$number'";
+        $res1 = mysqli_query($con, $sql1);
+        $row1 = mysqli_fetch_array($res1);
+        $bal = $row1['balance_amount'];
+
+            $sql1 = "select * from invoice where category_id=1 and number='$number' and invoice_id='$data_id'";
+        $res1 = mysqli_query($con, $sql1);
+        $row1 = mysqli_fetch_array($res1);
+        $old_inv = $row1['invoice_amount'];
+
+        $new_bal = $bal+$old_inv;
+        echo '<script> console.log("hello") </script>';
+        echo '<script> console.log($old_inv , $new_bal);</script>';
+            $q = "update datas set balance_amount='$new_bal' where number='$number' and category_id=1";
+
+            $res = mysqli_query($con,$q);
             $query = "DELETE FROM invoice WHERE invoice_id=$data_id";
+
             $sql = $db->query($query);
             echo 1;
         else :

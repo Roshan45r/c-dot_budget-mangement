@@ -7,9 +7,8 @@
     mysqli_select_db($con, 'c-dot');
     if(isset($_POST['form_data'])) {
         $user_title = $db->real_escape_string($_POST['title']);
-        $user_bps_date = $db->real_escape_string($_POST['bps_date']);
         $user_number = $db->real_escape_string($_POST['number']);
-        $user_approval_amount = $db->real_escape_string($_POST['approval_amount']);
+        // $user_approval_amount = $db->real_escape_string($_POST['approval_amount']);
         $user_country = $db->real_escape_string($_POST['country']);
         // echo $user_title;
         // echo $user_bps_date;
@@ -29,7 +28,7 @@
                 $app = $row['approval_amount'];
                 $bal = $row['balance_amount'];
                 $new_bal  = $bal + $user_approval_amount - $app;
-                $sql = "UPDATE datas SET title= '$user_title',bps_date='$user_bps_date',approval_amount='$user_approval_amount',balance_amount='$new_bal',country='$user_country' WHERE number='$user_number' and category_id=1";
+                $sql = "UPDATE datas SET title= '$user_title',balance_amount='$new_bal',country='$user_country' WHERE number='$user_number' and category_id=1";
                 $con = mysqli_connect('localhost', 'root', '');
                 mysqli_select_db($con, 'c-dot');
                 $con->query($sql);
@@ -42,7 +41,7 @@
         
         else{
             echo "helllo";
-            $sql ="INSERT INTO `datas` (`category_id`, `title`, `bps_date`, `approval_amount`, `balance_amount`,`country`,`number`) VALUES (1, '$user_title', '$user_bps_date', '$user_approval_amount', '$user_approval_amount','$user_country','$user_number')";
+            $sql ="INSERT INTO `datas` (`category_id`, `title`, `approval_amount`,`balance_amount`,`country`,`number`) VALUES (1, '$user_title',0, '$user_approval_amount', '$user_country','$user_number')";
         	$con = mysqli_connect('localhost', 'root', '');
             mysqli_select_db($con, 'c-dot');
             if ($con->query($sql) === TRUE)
