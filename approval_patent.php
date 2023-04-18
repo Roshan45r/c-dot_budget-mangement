@@ -5,6 +5,7 @@ include("export_data.php");
 $con = mysqli_connect('localhost', 'root', '');
 mysqli_select_db($con, 'c-dot');
 $pat = $_GET['no'];
+$cid = $_GET['cid'];
 $sort = 0;
 $ord = "approval_id";
 if (!empty($_GET['sort'])) {
@@ -16,7 +17,7 @@ if ($sort == 2) {
     $ord = "approval_date desc";
 }
 //echo $inv;
-$q = "select * from approval where category_id=1 and number=$pat order by $ord";
+$q = "select * from approval where category_id=$cid and number=$pat order by $ord";
 $quer = $q;
 $res = mysqli_query($con, $q);
 $exp = mysqli_query($con, $q);
@@ -47,7 +48,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
 
         <div class="col-md-4" style="margin-left:250px;">
 
-            <h2><a href="patent.php"><span class="glyphicon glyphicon-chevron-left"></span></a>APPROVALS - <?php echo $pat;?></h2>
+            <h2><a href="patent.php?cid=<?php echo $cid ?>"><span class="glyphicon glyphicon-chevron-left"></span></a>APPROVALS - <?php echo $pat;?></h2>
         </div>
     </div>
     <div class="row">
@@ -115,8 +116,8 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                 <div class="dropdown">
                     <button class="dropbtn">Sort By<span class="caret"></span></button>
                     <div class="dropdown-content">
-                        <a href="?no=<?php echo $pat ?>&sort=1">APPROVAL ID</a>
-                        <a href="?no=<?php echo $pat ?>&sort=2">APPROVAL DATE</a>
+                        <a href="?no=<?php echo $pat ?>&cid=<?php echo $cid ?>&sort=1">APPROVAL ID</a>
+                        <a href="?no=<?php echo $pat ?>&cid=<?php echo $cid ?>&sort=2">APPROVAL DATE</a>
                     </div>
                 </div>
                 <div class="col">
@@ -256,7 +257,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
             <!-- Form inside modal -->
             <form method="post" action="add_app.php" id="cat_form">
                 <input type="hidden" name="number" id="number" value="<?php echo $pat ?>">
-                <input type="hidden" name="category_id" id="category_id" value="<?php echo $row['category_id'] ?>">
+                <input type="hidden" name="category_id" id="category_id" value="<?php echo $cid?>">
                 <div class="modal-body with-padding">
                     <!-- <div class="form-group">
                         <div class="row">

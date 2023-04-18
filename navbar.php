@@ -19,7 +19,7 @@
         <div class="container-fluid">
             <div class="navbar-header">
                 <!-- <a class="navbar-brand" href="#">C-DOT</a> -->
-                <img src='images/cdot_logo.png' style="margin-top:10px;height:50px;">
+                <a href="options.php"><img src='images/cdot_logo.png' style="margin-top:10px;height:50px;"></a>
             </div>
             <!-- <ul class="nav navbar-nav">
                 <li><a href="products.php">PRODUCTS</a></li>

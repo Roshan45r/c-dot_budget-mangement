@@ -1,5 +1,30 @@
 <?php
 session_start();
+
+
+
+$cid = $_GET['cid'];
+
+if(empty($cid)){
+
+    echo "404 ERROR NO CATEGORY";
+}
+
+$cid = (int)$cid;
+
+if($cid > 0 && $cid < 5){
+    if ($cid==1){
+        $category = "Patent";
+    }
+    if ($cid==2){
+        $category = "TradeMark";
+    }
+    if ($cid==3){
+        $category = "Design";
+    }
+    if ($cid==4){
+        $category = "Copyright";
+    }
 include('export_data.php');
 $con = mysqli_connect('localhost', 'root', '');
 mysqli_select_db($con, 'c-dot');
@@ -17,12 +42,12 @@ if ($sort == 2) {
 if ($sort == 3) {
     $ord = "number desc";
 }
-$q = "select * from datas where category_id=1 order by $ord";
+$q = "select * from datas where category_id='$cid' order by $ord";
 if (!empty($_GET['search'])) {
     // Do something.
     $search = $_GET['search'];
     //echo $search;
-    $q = "select * from datas where category_id=1 and (number like '$search%' or title like '$search%') order by $ord";
+    $q = "select * from datas where category_id='$cid' and (number like '$search%' or title like '$search%') order by $ord";
 }
 $res = mysqli_query($con, $q);
 //$row = mysqli_fetch_array($res);
@@ -35,7 +60,7 @@ $res = mysqli_query($con, $q);
 <html lang="en">
 
 <head>
-    <title>patent</title>
+    <title><?php echo $category?></title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -50,18 +75,18 @@ $res = mysqli_query($con, $q);
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;">
-            <h2>PATENTS</h2>
+            <h2><a href="options.php"><span class="glyphicon glyphicon-chevron-left"></span></a><?php echo $category?></h2>
         </div>
     </div>
     <div class="row">
 
         <div class="col-md-4" style="margin-left:250px;MARGIN-BOTTOM:5PX;">
-            <?php $apage = array('id' => '', 'title' => ''); ?>
+            <?php $apage = array('id' => '', 'title' => '','category_id'=>$cid); ?>
             <script>
                 var page_0 = <?php echo json_encode($apage) ?>
             </script>
             <div style="display: flex;align-items: center;margin-left:10px;width:max-content;">
-                <a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span class="glyphicon glyphicon-plus"></span> Add new patent</a>
+                <a data="page_0" class="model_form btn btn-sm btn-danger" href="#"><span class="glyphicon glyphicon-plus"></span> Add new <?php echo $category?></a>
                 <style>
                     /* Style The Dropdown Button */
                     .dropbtn {
@@ -118,15 +143,15 @@ $res = mysqli_query($con, $q);
                 <div class="dropdown">
                     <button class="dropbtn">Sort By<span class="caret"></span></button>
                     <div class="dropdown-content">
-                        <a href="?sort=1">TITLE</a>
-                        <a href="?sort=3">PATENT-ID</a>
+                        <a href="?sort=1&cid=<?php echo $cid ?>">TITLE</a>
+                        <a href="?sort=3&cid=<?php echo $cid ?>"><?php echo $category?>-id</a>
                     </div>
                 </div>
 
                 <div style="margin-right: 10px;">
                     <div>
                         <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
-                            <input type="hidden" value="All Patents" name="number" id="number">
+                            <input type="hidden" value="All <?php echo $category?>" name="number" id="number">
                             <input type="hidden" value="<?php echo $q ?>" name="query" id="query">
 
                             <button type="submit" id="export_data" name='export_data' value="Export to excel" class="btn btn-success" style="font-size:12px;">Export<i class="fa fa-download" style="margin-left:5px;"></i></button>
@@ -136,6 +161,7 @@ $res = mysqli_query($con, $q);
                 <div class="search-container">
                     <form action="patent.php" method="GET">
                         <input type="text" placeholder="Search by ID,TITLE" name="search" id="search">
+                        <input type="hidden" name="cid" value="<?php echo $cid ?>">
                         <button type="submit"><span class="glyphicon glyphicon-search"></span></button>
                     </form>
                 </div>
@@ -150,8 +176,8 @@ $res = mysqli_query($con, $q);
             <table class="table table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>PATENT ID</th>
-                        <th>PATENT TITLE</th>
+                        <th><?php echo $category?> ID</th>
+                        <th><?php echo $category?> TITLE</th>
                         <th>APPROVAL AMOUNT</th>
                         <th>BALANCE AMOUNT</th>
                         <th>COUNTRY</th>
@@ -177,7 +203,7 @@ $res = mysqli_query($con, $q);
                                         <input type="hidden" name="number_p" id="number_p" value="<?php echo $row['number']; ?>">
 
 
-                                        <a href="invoice_patent.php?no=<?php echo $row['number']; ?>" title="View Invoices for <?php echo $row['number']; ?>" class="tip view_inv btn btn-info btn-sm "><span class="glyphicon glyphicon-list-alt "></span></a>
+                                        <a href="invoice_patent.php?no=<?php echo $row['number']; ?>&cid=<?php echo $cid ?>" title="View Invoices for <?php echo $row['number']; ?>" class="tip view_inv btn btn-info btn-sm "><span class="glyphicon glyphicon-list-alt "></span></a>
 
 
 
@@ -185,7 +211,7 @@ $res = mysqli_query($con, $q);
                                             <span class="glyphicon glyphicon-pencil"></span></a>
                                         <a data="<?php echo  $row['number'] ?>" title="Delete <?php echo $row['number']; ?>" class="tip delete_check btn btn-info btn-sm "><span class="glyphicon glyphicon-remove"></span> </a>
 
-                                        <a href="approval_patent.php?no=<?php echo $row['number']; ?>" data="<?php echo  $row['number'] ?>" title="View <?php echo $row['number']; ?>" class="tip view_pat btn btn-info btn-sm "><span class="glyphicon glyphicon-eye-open"></span> </a>
+                                        <a href="approval_patent.php?no=<?php echo $row['number']; ?>&cid=<?php echo $cid; ?>" data="<?php echo  $row['number'] ?>" title="View <?php echo $row['number']; ?>" class="tip view_pat btn btn-info btn-sm "><span class="glyphicon glyphicon-eye-open"></span> </a>
 
                                     </form>
                                 </td>
@@ -203,6 +229,11 @@ $res = mysqli_query($con, $q);
                <span class="glyphicon glyphicon-envelope"></span> <strong>' . $message . '</strong> </div>';
                 unset($_SESSION['flash_msg']);
             endif;
+
+        }
+        else{
+            echo "404 ERROR CATEGORY INVALID";
+        }
             ?>
 
         </div>
@@ -227,15 +258,16 @@ $res = mysqli_query($con, $q);
                 backdrop: 'static'
             });
             var data = eval($(this).attr('data'));
-            console.log(data);
-            $('#number').val(data.number);
+            console.log(data.number);
+            $('#number-id').val(data.number);
             $('#title').val(data.title);
-            $('#number').val(data.number);
+            //$('#number').val(data.number);
             $('#category_id').val(data.category_id);
-            $('#approval_amount').val(data.approval_amount);
+            //$('#approval_amount').val(data.approval_amount);
             $('#country').val(data.country);
-            if (data.id != "")
+            if (data.id != ""){
                 $('#pop_title').html('Edit');
+                $('#pid').val(data.number);}
             else
                 $('#pop_title').html('Add');
 
@@ -272,12 +304,13 @@ $res = mysqli_query($con, $q);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-bps_dateden="true">&times;</button>
-                <h4 class="modal-title"><i class="icon-paragraph-justify2"></i><span id="pop_title">Add</span> Patent
+                <h4 class="modal-title"><i class="icon-paragraph-justify2"></i><span id="pop_title">Add</span> <?php echo $category?>
                     information</h4>
             </div>
             <!-- Form inside modal -->
             <form method="post" action="add_patent.php" id="cat_form">
-                <input type="hidden" name="category_id" id="category_id">
+                <input type="hidden" name="category_id" id="category_id" value="<?php echo $cid; ?>">
+                <input type="hidden" name="pid" id="pid" >
                 <div class="modal-body with-padding">
                     <div class="form-group">
                         <div class="row">
@@ -290,8 +323,8 @@ $res = mysqli_query($con, $q);
                     <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
-                                <label>patent id :</label>
-                                <input type="text" name="number" id="number" class="form-control required">
+                                <label><?php echo $category?> id :</label>
+                                <input type="text" name="number" id="number-id" class="form-control required">
                             </div>
                         </div>
                     </div>
