@@ -77,6 +77,7 @@
     if(isset($_POST['ct_data_id'])) :
         $data_id = ($_POST['ct_data_id']!="") ? $_POST['ct_data_id'] : '';
         $number = $_POST['number'];
+        $user_category_id = $_POST['category_id'];
         if($data_id!="") :
             $sql1 = "select * from datas where category_id='$user_category_id' and number='$number'";
         $res1 = mysqli_query($con, $sql1);
@@ -94,7 +95,7 @@
             $q = "update datas set balance_amount='$new_bal' where number='$number' and category_id='$user_category_id'";
 
             $res = mysqli_query($con,$q);
-            $query = "DELETE FROM invoice WHERE invoice_id=$data_id";
+            $query = "DELETE FROM invoice WHERE invoice_id=$data_id and category_id='$user_category_id'";
 
             $sql = $db->query($query);
             echo 1;

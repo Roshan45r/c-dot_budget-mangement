@@ -226,7 +226,8 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                     url: url,
                     data: {
                         number: '<?php echo $pat; ?>',
-                        ct_data_id: $(current_element).attr('data')
+                        ct_data_id: $(current_element).attr('data'),
+                        category_id: "<?php echo  $cid?>"
                     },
                     success: function(data) {
                         location.reload();

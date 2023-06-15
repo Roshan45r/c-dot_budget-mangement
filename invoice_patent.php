@@ -158,6 +158,7 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                                 <script>
                                     var page_<?php echo $row['invoice_id'] ?> = <?php echo json_encode($row); ?>
                                 </script>
+                                
                                 <td><a data="<?php echo 'page_' . $row['invoice_id'] ?>" class="model_form btn btn-info btn-sm" href="#">
                                         <span class="glyphicon glyphicon-pencil"></span></a>
                                     <a data="<?php echo  $row['invoice_id'] ?>" title="Delete <?php echo $row['invoice_id']; ?>" class="tip delete_check btn btn-info btn-sm "><span class="glyphicon glyphicon-remove"></span> </a>
@@ -231,7 +232,8 @@ while ($rows = mysqli_fetch_assoc($exp)) {
                     url: url,
                     data: {
                         number: '<?php echo $inv; ?>',
-                        ct_data_id: $(current_element).attr('data')
+                        ct_data_id: $(current_element).attr('data'),
+                        category_id: "<?php echo  $cid ?>"
                     },
                     success: function(data) {
                         location.reload();

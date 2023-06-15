@@ -43,7 +43,7 @@ $cid = $db->real_escape_string($_POST['category_id']);
         
         else{
             echo "helllo";
-            $sql ="INSERT INTO `datas` (`category_id`, `title`, `approval_amount`,`balance_amount`,`country`,`number`) VALUES ('$cid', '$user_title',0, '$user_approval_amount', '$user_country','$user_number')";
+            $sql ="INSERT INTO `datas` (`category_id`, `title`, `approval_amount`,`balance_amount`,`country`,`number`) VALUES ('$cid', '$user_title',0, 0, '$user_country','$user_number')";
         	$con = mysqli_connect('localhost', 'root', '');
             mysqli_select_db($con, 'c-dot');
             if ($con->query($sql) === TRUE)
